@@ -1,0 +1,22 @@
+# Entorno virtual
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Archivos temporales
+*.tmp
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
