@@ -20,3 +20,6 @@ __pycache__/
 # Sistema operativo
 .DS_Store
 Thumbs.db
+# Excluir resultados de los algoritmos
+*.csv
+*.png
