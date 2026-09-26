@@ -7,10 +7,10 @@ from funcion_objetivo import EvaluadorFO
 
 # IMPORTANTE: Asegúrate de importar la clase desde el archivo donde tienes el ACO Original (puro)
 # Según tu captura de pantalla anterior, el archivo se llama 'ant_colony_opt_original.py'
-from ant_colony_opt_original import AntColonyOptimization
+from ant_colony_opt import AntColonyOptimization
 
 def main():
-    print("1. Cargando datos para experimentación ACO (Original)...")
+    print("1. Cargando datos para experimentación ACO...")
     lector = LectorInstancia('data/instancia_examenes_tema02.xlsx')
     examenes, franjas, aulas, matriculas = lector.cargar_datos()
     evaluador = EvaluadorFO(examenes, franjas, aulas, matriculas)
@@ -119,7 +119,7 @@ def main():
         # Generar gráfica de la mejor corrida para esta configuración
         plt.figure(figsize=(10, 6))
         plt.plot(mejor_historial, color='green', linewidth=2)
-        plt.title(f'Convergencia ACO Original - Mejor Corrida ({id_conf})')
+        plt.title(f'Convergencia ACO - Mejor Corrida ({id_conf})')
         plt.xlabel('Generaciones')
         plt.ylabel('Costo de la Función Objetivo')
         plt.grid(True, linestyle='--', alpha=0.7)
