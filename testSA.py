@@ -1,90 +1,95 @@
 import time
+import csv
+import os
 import matplotlib.pyplot as plt
 from lector_excel import LectorInstancia
 from funcion_objetivo import EvaluadorFO
 from simulated_annealing import SimulatedAnnealing
 
 def main():
-    print("1. Cargando datos de la instancia desde Excel...")
+    print("1. Cargando datos para experimentación SA...")
     lector = LectorInstancia('data/instancia_examenes_tema02.xlsx')
     examenes, franjas, aulas, matriculas = lector.cargar_datos()
-    print(f"   - {len(examenes)} Exámenes, {len(franjas)} Franjas, {len(aulas)} Aulas cargados.")
-
-    print("2. Inicializando Función Objetivo y matriz de conflictos...")
     evaluador = EvaluadorFO(examenes, franjas, aulas, matriculas)
 
-    print("3. Configurando algoritmo de Enfriamiento Simulado (Línea Base)...")
-    # Configuración de hiperparámetros más lenta y profunda
-    sa = SimulatedAnnealing(
-        examenes=examenes,
-        franjas=franjas,
-        aulas=aulas,
-        evaluador_fo=evaluador,
-        t_inicial=2000000,        # 2 Millones (Cubre penalizaciones altísimas de cruces de estudiantes)
-        alpha=0.99,               # Enfriamiento lentísimo (0.99 en vez de 0.90 o 0.95)
-        t_final=0.1,
-        iteraciones_por_temp=400  # Muchas más oportunidades de movimiento en cada grado de temperatura
-    )
-
-    print("4. Ejecutando optimización... (El procesador está trabajando, espera unos segundos)")
-    inicio = time.time()
-    mejor_solucion, mejor_costo, historial = sa.ejecutar()
-    fin = time.time()
-
-    print("\n" + "="*40)
-    print("      RESULTADOS DE LA OPTIMIZACIÓN      ")
-    print("="*40)
-    print(f"Tiempo de ejecución: {fin - inicio:.3f} segundos")
-
-    # Descomponer el costo de la mejor solución encontrada
-    _, h, c_dia, p_libres = evaluador.evaluar(mejor_solucion)
-    
-    print(f"\nCosto Total de la FO: {mejor_costo}")
-    print(f"Violaciones Duras (H): {h}")
-    if h == 0:
-        print("   -> ESTADO: ¡Solución Factible! (Horario válido)")
-    else:
-        print("   -> ESTADO: Solución No Factible (Requiere ajustar hiperparámetros)")
+    # =========================================================================
+    # EL MOTOR DE CONFIGURACIONES
+    # Para la Línea Base, dejas solo el primer elemento.
+    # Para el Bloque 1, simplemente agregas 10 diccionarios más aquí abajo.
+    # =========================================================================
+    configuraciones_a_probar = [
+        {"id": "Linea_Base", "t_inicial": 2000000, "alpha": 0.99, "t_final": 0.1, "iteraciones": 400},
         
-    print(f"Casos estudiante-día (C_dia): {c_dia}")
+        # Ejemplo de cómo agregarás las del Bloque 1 después (ahora están comentadas):
+        # {"id": "B1_Config_01", "t_inicial": 500000, "alpha": 0.95, "t_final": 0.1, "iteraciones": 200},
+        # {"id": "B1_Config_02", "t_inicial": 1000000, "alpha": 0.90, "t_final": 0.1, "iteraciones": 500},
+    ]
 
-    # ... código anterior ...
-    print(f"Puestos de aula no utilizados (P_libres): {p_libres}")
-    print("="*40)
-
-    # --- NUEVO CÓDIGO PARA MOSTRAR Y GUARDAR LA SOLUCIÓN ---
-    print("\n" + "="*40)
-    print("          HORARIO GENERADO          ")
-    print("="*40)
-    print(f"{'Examen':<10} | {'Franja':<10} | {'Aula':<10}")
-    print("-" * 35)
+    NUM_CORRIDAS = 30
+    archivo_csv = 'resultados_SA_experimentos.csv'
     
-    # Ordenar alfabéticamente por examen para mejor lectura
-    for id_examen, (id_franja, id_aula) in sorted(mejor_solucion.items()):
-        print(f"{id_examen:<10} | {id_franja:<10} | {id_aula:<10}")
+    # Crear el CSV con encabezados si no existe
+    if not os.path.exists(archivo_csv):
+        with open(archivo_csv, mode='w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['ID_Config', 'Corrida', 'Costo_Total', 'H', 'C_dia', 'P_libres', 'Factible', 'Tiempo_s'])
 
-    # Guardar en un archivo CSV
-    import csv
-    with open('horario_solucion_sa.csv', 'w', newline='', encoding='utf-8') as archivo_csv:
-        escritor = csv.writer(archivo_csv)
-        escritor.writerow(['Examen', 'Franja', 'Aula'])
-        for id_examen, (id_franja, id_aula) in sorted(mejor_solucion.items()):
-            escritor.writerow([id_examen, id_franja, id_aula])
+    # BUCLE EXTERNO: Recorre cada configuración que hayas puesto en la lista
+    for config in configuraciones_a_probar:
+        id_conf = config["id"]
+        print(f"\n==================================================")
+        print(f" EVALUANDO CONFIGURACIÓN: {id_conf}")
+        print(f" Parámetros: T={config['t_inicial']}, Alpha={config['alpha']}, Iter={config['iteraciones']}")
+        print(f"==================================================")
+
+        mejor_costo_historico = float('inf')
+        mejor_historial = []
+
+        # BUCLE INTERNO: Las 30 ejecuciones independientes obligatorias
+        for corrida in range(1, NUM_CORRIDAS + 1):
+            print(f"  -> Ejecutando corrida {corrida:02d}/{NUM_CORRIDAS}...", end='', flush=True)
             
-    print("-" * 35)
-    print("El horario completo se ha guardado en 'horario_solucion.csv'")
-    # ... aquí sigue el código de la gráfica plt.show() o plt.savefig() ...
+            sa = SimulatedAnnealing(
+                examenes=examenes, franjas=franjas, aulas=aulas, evaluador_fo=evaluador,
+                t_inicial=config["t_inicial"], 
+                alpha=config["alpha"], 
+                t_final=config["t_final"], 
+                iteraciones_por_temp=config["iteraciones"]
+            )
+            
+            inicio = time.time()
+            mejor_solucion, mejor_costo, historial = sa.ejecutar()
+            fin = time.time()
+            
+            tiempo_ejecucion = fin - inicio
+            _, h, c_dia, p_libres = evaluador.evaluar(mejor_solucion)
+            factible = "SI" if h == 0 else "NO"
+            
+            # Guardado en caliente: se abre, escribe y cierra para no perder datos
+            with open(archivo_csv, mode='a', newline='', encoding='utf-8') as f:
+                writer = csv.writer(f)
+                writer.writerow([id_conf, corrida, mejor_costo, h, c_dia, p_libres, factible, round(tiempo_ejecucion, 3)])
+                
+            print(f" Costo: {mejor_costo} | H: {h} | Tiempo: {tiempo_ejecucion:.2f}s")
 
-    print("\n5. Generando gráfica de convergencia...")
-    plt.figure(figsize=(10, 6))
-    plt.plot(historial, color='b', linewidth=2)
-    plt.title('Curva de Convergencia - Enfriamiento Simulado (SA)', fontsize=14)
-    plt.xlabel('Iteraciones de Temperatura (Enfriamiento)', fontsize=12)
-    plt.ylabel('Costo de la Función Objetivo', fontsize=12)
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.tight_layout()
-    plt.savefig("convergencia_SA.png", dpi=300)
-    print("Gráfica guardada como 'convergencia_SA.png' en la raíz del proyecto.")
+            # Identificar la mejor corrida de esta configuración para la gráfica
+            if mejor_costo < mejor_costo_historico:
+                mejor_costo_historico = mejor_costo
+                mejor_historial = historial
+
+        # Generar gráfica de la mejor corrida para esta configuración específica
+        plt.figure(figsize=(10, 6))
+        plt.plot(mejor_historial, color='blue', linewidth=2)
+        plt.title(f'Convergencia SA - Mejor Corrida ({id_conf})')
+        plt.xlabel('Iteraciones (Temperatura)')
+        plt.ylabel('Costo de la Función Objetivo')
+        plt.grid(True, linestyle='--', alpha=0.7)
+        nombre_grafica = f"convergencia_SA_{id_conf}.png"
+        plt.savefig(nombre_grafica, dpi=300)
+        plt.close() # Cerrar la figura para no saturar la memoria RAM
+        print(f"\n* Gráfica de la mejor corrida guardada como '{nombre_grafica}'")
+
+    print(f"\nTodos los experimentos finalizaron. Datos asegurados en '{archivo_csv}'")
 
 if __name__ == "__main__":
     main()
