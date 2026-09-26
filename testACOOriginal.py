@@ -19,26 +19,35 @@ def main():
     # EL MOTOR DE CONFIGURACIONES PARA ACO
     # =========================================================================
     configuraciones_a_probar = [
-        {
-            "id": "Linea_Base", 
-            "num_hormigas": 40, 
-            "num_generaciones": 150, 
-            "alpha": 1.0, 
-            "beta": 2.0, 
-            "rho": 0.1, 
-            "Q": 100000.0
-        },
+        # C1: Enjambre pequeño, muchas generaciones, evaporación alta (olvidan rápido, evitan estancarse).
+        {"id": "B1_ACO_01", "num_hormigas": 15, "num_generaciones": 400, "alpha": 1.0, "beta": 2.0, "rho": 0.4, "Q": 100000.0},
         
-        # Ejemplo para cuando pases al Bloque 1 (descomentarás y agregarás más):
-        # {
-        #     "id": "B1_Config_01", 
-        #     "num_hormigas": 50, 
-        #     "num_generaciones": 200, 
-        #     "alpha": 1.5, 
-        #     "beta": 3.0, 
-        #     "rho": 0.15, 
-        #     "Q": 100000.0
-        # },
+        # C2: Enjambre masivo, pocas generaciones, evaporación baja (memoria fuerte a corto plazo).
+        {"id": "B1_ACO_02", "num_hormigas": 100, "num_generaciones": 60, "alpha": 1.0, "beta": 2.0, "rho": 0.05, "Q": 100000.0},
+        
+        # C3: Guiadas fuertemente por la Feromona (alpha alto), ignoran casi la capacidad del aula (beta bajo).
+        {"id": "B1_ACO_03", "num_hormigas": 40, "num_generaciones": 150, "alpha": 3.0, "beta": 0.5, "rho": 0.1, "Q": 100000.0},
+        
+        # C4: Comportamiento Ávido/Heurístico. Ignoran la feromona, se guían por el tamaño del aula (beta muy alto).
+        {"id": "B1_ACO_04", "num_hormigas": 40, "num_generaciones": 150, "alpha": 0.5, "beta": 4.0, "rho": 0.1, "Q": 100000.0},
+        
+        # C5: Balance simétrico entre memoria (alpha) y heurística (beta) con evaporación estándar.
+        {"id": "B1_ACO_05", "num_hormigas": 50, "num_generaciones": 200, "alpha": 2.0, "beta": 2.0, "rho": 0.15, "Q": 100000.0},
+        
+        # C6: Evaporación extrema (rho=0.8). La colonia olvida casi todo en cada generación.
+        {"id": "B1_ACO_06", "num_hormigas": 40, "num_generaciones": 150, "alpha": 1.0, "beta": 2.0, "rho": 0.8, "Q": 100000.0},
+        
+        # C7: Evaporación ultralenta (rho=0.01). El rastro se vuelve permanente rápidamente.
+        {"id": "B1_ACO_07", "num_hormigas": 60, "num_generaciones": 200, "alpha": 1.0, "beta": 2.0, "rho": 0.01, "Q": 100000.0},
+        
+        # C8: Enjambre mediano, fuerte peso a la memoria histórica (alpha alto), evaporación moderada.
+        {"id": "B1_ACO_08", "num_hormigas": 30, "num_generaciones": 250, "alpha": 2.5, "beta": 1.5, "rho": 0.2, "Q": 100000.0},
+        
+        # C9: Alta dependencia de la heurística (beta) con un enjambre grande para explotar rápido.
+        {"id": "B1_ACO_09", "num_hormigas": 80, "num_generaciones": 100, "alpha": 1.0, "beta": 3.5, "rho": 0.1, "Q": 100000.0},
+        
+        # C10: Alta exploración. Pocas hormigas, evaporación alta, mucha importancia a la intuición (beta).
+        {"id": "B1_ACO_10", "num_hormigas": 20, "num_generaciones": 300, "alpha": 0.8, "beta": 3.0, "rho": 0.5, "Q": 100000.0},
     ]
 
     NUM_CORRIDAS = 30
