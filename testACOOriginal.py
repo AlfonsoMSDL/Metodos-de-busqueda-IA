@@ -57,7 +57,7 @@ def main():
     if not os.path.exists(archivo_csv):
         with open(archivo_csv, mode='w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(['ID_Config', 'Corrida', 'Costo_Total', 'H', 'C_dia', 'P_libres', 'Factible', 'Tiempo_s'])
+            writer.writerow(['ID_Config', 'Corrida', 'Costo_Total', 'H', 'C_dia', 'P_libres', 'Factible', 'Tiempo_s', 'Iteracion_Mejor'])
 
     # BUCLE EXTERNO: Recorre cada configuración en la lista
     for config in configuraciones_a_probar:
@@ -94,11 +94,16 @@ def main():
             tiempo_ejecucion = fin - inicio
             _, h, c_dia, p_libres = evaluador.evaluar(mejor_solucion)
             factible = "SI" if h == 0 else "NO"
+
+            # --- NUEVA LÍNEA PARA CALCULAR LA ITERACIÓN ---
+            # Busca en qué índice del historial se alcanzó el costo más bajo por primera vez
+            iteracion_mejor = historial.index(min(historial))
             
-            # Guardado en caliente
+            # Guardado en caliente: se abre, escribe y cierra para no perder datos
+            # Guardado en caliente (Agregamos iteracion_mejor al final)
             with open(archivo_csv, mode='a', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
-                writer.writerow([id_conf, corrida, mejor_costo, h, c_dia, p_libres, factible, round(tiempo_ejecucion, 3)])
+                writer.writerow([id_conf, corrida, mejor_costo, h, c_dia, p_libres, factible, round(tiempo_ejecucion, 3), iteracion_mejor])
                 
             print(f" Costo: {mejor_costo} | H: {h} | Tiempo: {tiempo_ejecucion:.2f}s")
 
