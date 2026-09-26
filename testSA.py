@@ -14,52 +14,22 @@ def main():
 
     # =========================================================================
     # EL MOTOR DE CONFIGURACIONES
-    # Para la Línea Base, dejas solo el primer elemento.
-    """configuraciones_a_probar = [
-            {
-                "id": "Linea_Base", 
-                "t_inicial": 2000000, 
-                "alpha": 0.99, 
-                "t_final": 0.1, 
-                "iteraciones": 400
-            }
-        ]"""
-    # Para el Bloque 1, simplemente agregas 10 diccionarios más aquí abajo.
-    # =========================================================================
     configuraciones_a_probar = [
-        # C1: Enfriamiento rápido y baja temperatura. (Búsqueda agresiva/ávida)
-        {"id": "B1_SA_01", "t_inicial": 500000, "alpha": 0.85, "t_final": 0.1, "iteraciones": 200},
-        
-        # C2: Enfriamiento muy lento y alta temperatura. (Máxima exploración global, tomará más tiempo)
-        {"id": "B1_SA_02", "t_inicial": 5000000, "alpha": 0.995, "t_final": 0.1, "iteraciones": 600},
-        
-        # C3: Temperatura inicial moderada pero muchas iteraciones por nivel. (Explotación profunda)
-        {"id": "B1_SA_03", "t_inicial": 2000000, "alpha": 0.90, "t_final": 0.1, "iteraciones": 1000},
-        
-        # C4: Temperatura extrema, enfriamiento estándar. (Permite aceptar muchos errores al inicio)
-        {"id": "B1_SA_04", "t_inicial": 10000000, "alpha": 0.95, "t_final": 0.1, "iteraciones": 400},
-        
-        # C5: Micro-búsqueda. Temperatura baja, enfriamiento lentísimo. (Afinación fina)
-        {"id": "B1_SA_05", "t_inicial": 100000, "alpha": 0.999, "t_final": 0.1, "iteraciones": 200},
-        
-        # C6: Pocas iteraciones pero enfriamiento conservador. (Descenso gradual ligero)
-        {"id": "B1_SA_06", "t_inicial": 2000000, "alpha": 0.98, "t_final": 0.1, "iteraciones": 100},
-        
-        # C7: Búsqueda equilibrada de convergencia rápida.
-        {"id": "B1_SA_07", "t_inicial": 1000000, "alpha": 0.92, "t_final": 0.1, "iteraciones": 500},
-        
-        # C8: Congelamiento abrupto. Alta temperatura que cae drásticamente.
-        {"id": "B1_SA_08", "t_inicial": 8000000, "alpha": 0.80, "t_final": 0.1, "iteraciones": 300},
-        
-        # C9: Alta cantidad de iteraciones con enfriamiento estándar.
-        {"id": "B1_SA_09", "t_inicial": 3000000, "alpha": 0.95, "t_final": 0.1, "iteraciones": 800},
-        
-        # C10: Baja temperatura inicial, enfriamiento rápido. (Casi un Hill Climbing, cero tolerancia a errores)
-        {"id": "B1_SA_10", "t_inicial": 50000, "alpha": 0.80, "t_final": 0.1, "iteraciones": 400},
+        # B2: Sintonización fina alrededor del campeón B1_SA_02 (Alpha alto, buscando eficiencia en tiempo)
+        {"id": "B2_SA_01", "t_inicial": 5000000, "alpha": 0.996, "t_final": 0.1, "iteraciones": 400},
+        {"id": "B2_SA_02", "t_inicial": 5000000, "alpha": 0.994, "t_final": 0.1, "iteraciones": 450},
+        {"id": "B2_SA_03", "t_inicial": 4000000, "alpha": 0.995, "t_final": 0.1, "iteraciones": 500},
+        {"id": "B2_SA_04", "t_inicial": 4000000, "alpha": 0.993, "t_final": 0.1, "iteraciones": 400},
+        {"id": "B2_SA_05", "t_inicial": 3000000, "alpha": 0.997, "t_final": 0.1, "iteraciones": 300}, # Alpha extremo, menos iteraciones
+        {"id": "B2_SA_06", "t_inicial": 3000000, "alpha": 0.995, "t_final": 0.1, "iteraciones": 350},
+        {"id": "B2_SA_07", "t_inicial": 6000000, "alpha": 0.992, "t_final": 0.1, "iteraciones": 500},
+        {"id": "B2_SA_08", "t_inicial": 5000000, "alpha": 0.995, "t_final": 0.1, "iteraciones": 300}, # Prueba de velocidad agresiva
+        {"id": "B2_SA_09", "t_inicial": 4500000, "alpha": 0.994, "t_final": 0.1, "iteraciones": 550},
+        {"id": "B2_SA_10", "t_inicial": 5000000, "alpha": 0.998, "t_final": 0.1, "iteraciones": 250}, # Enfriamiento casi estático
     ]
 
     NUM_CORRIDAS = 30
-    archivo_csv = 'resultados_SA_experimentos.csv'
+    archivo_csv = 'resultados_SA_experimentos_bloque2.csv'
     
     # Crear el CSV con encabezados si no existe
     if not os.path.exists(archivo_csv):
