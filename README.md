@@ -43,6 +43,7 @@ $Costo = 100000 \cdot H + 100 \cdot C_{dia} + P_{libres}$
 
 ## Estructura del proyecto
 
+```text
 METODOS DE BUSQUEDA IA/
 ├── data/                           # Archivos de datos de Excel (instancias)
 ├── .gitignore                      # Exclusión de entornos virtuales y resultados
@@ -56,6 +57,7 @@ METODOS DE BUSQUEDA IA/
 ├── simulated_annealing.py          # Lógica del algoritmo SA
 ├── testACO.py                      # Script de experimentación para ACO
 └── testSA.py                       # Script de experimentación para SA
+```
 
 *(Nota: Los archivos `.csv` de resultados y las gráficas `.png` se generan automáticamente durante la ejecución y son ignorados por Git para mantener limpio el repositorio).*
 
