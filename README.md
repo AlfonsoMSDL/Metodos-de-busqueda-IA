@@ -10,14 +10,28 @@ El problema se evalúa mediante una función objetivo que penaliza:
 1. **Restricciones Duras ($H$):** Cruces de horarios para estudiantes, superación de aforos de aulas, o asignaciones en horarios no permitidos (deben ser 0 para que la solución sea factible).
 2. **Restricciones Blandas:** Estudiantes con más de un examen el mismo día ($C_{dia}$) y asientos vacíos en las aulas utilizadas ($P_{libres}$).
 
-## Modelos de Datos (Clases)
+---
 
-El proyecto utiliza un enfoque orientado a objetos para mapear los datos del archivo Excel a entidades manejables en Python (definidas en `modelos.py`):
+## Arquitectura y Componentes Clave
 
-*   **`Examen`**: Representa una prueba a programar. Contiene su identificador, cantidad de estudiantes inscritos, duración en minutos y una lista de las franjas (horarios) en las que es permitido programarlo.
-*   **`Franja`**: Representa un bloque de tiempo. Contiene su identificador único, el día de la semana y el horario específico.
-*   **`Aula`**: Representa el espacio físico. Contiene su identificador, la capacidad máxima de estudiantes y una lista de las franjas en las que está disponible para ser usada.
-*   **`Matricula`**: Representa la relación entre un estudiante y un examen, fundamental para calcular los conflictos y cruces de horarios.
+El proyecto está modularizado en tres capas principales:
+
+### 1. Modelos de Datos (`modelos.py` y `lector_excel.py`)
+Mapeo orientado a objetos de los datos de entrada:
+*   **`Examen`**: Identificador, cantidad de estudiantes, duración y franjas permitidas.
+*   **`Franja`**: Identificador único, día de la semana y horario.
+*   **`Aula`**: Identificador, capacidad máxima y franjas disponibles.
+*   **`Matricula`**: Relación estudiante-examen para calcular conflictos.
+
+### 2. Función Objetivo (`funcion_objetivo.py`)
+La clase `EvaluadorFO` se encarga de calcular el costo estandarizado de cualquier horario generado, validando la matriz de conflictos y penalizando las violaciones duras y blandas según la fórmula: 
+$Costo = 100000 \cdot H + 100 \cdot C_{dia} + P_{libres}$
+
+### 3. Algoritmos y Experimentación
+*   **`simulated_annealing.py`**: Implementación del algoritmo de Enfriamiento Simulado.
+*   **`ant_colony_opt.py`**: Implementación de Optimización por Colonia de Hormigas (ACO).
+*   **Scripts de Prueba (`testSA.py`, `testACO.py`)**: Motores de ejecución automatizada que corren bloques experimentales de 30 corridas, exportando resultados a archivos `.csv` y generando gráficas de convergencia.
+*   **`analizar_bloque1.py`**: Script de procesamiento de datos con Pandas para clasificar las configuraciones campeonas basándose en factibilidad, costo y coeficiente de variación.
 
 ---
 
@@ -29,125 +43,75 @@ El proyecto utiliza un enfoque orientado a objetos para mapear los datos del arc
 
 ## Estructura del proyecto
 
-```text
 METODOS DE BUSQUEDA IA/
-├── data/               # Archivos de datos de Excel (instancias) utilizados por el programa
-├── lector_excel.py     # Lectura con pandas y mapeo de los datos hacia los modelos
-├── main.py             # Punto de entrada del programa y orquestador
-├── modelos.py          # Definición de las clases (Examen, Franja, Aula, Matricula)
-├── requirements.txt    # Dependencias de Python
-├── .gitignore
-└── README.md
-```
+├── data/                           # Archivos de datos de Excel (instancias)
+├── .gitignore                      # Exclusión de entornos virtuales y resultados
+├── README.md                       # Documentación del proyecto
+├── analizar_bloque1.py             # Script de análisis de resultados en consola
+├── ant_colony_opt.py               # Lógica del algoritmo ACO
+├── funcion_objetivo.py             # Clase EvaluadorFO para cálculo de costos
+├── lector_excel.py                 # Lectura con pandas y mapeo de datos
+├── modelos.py                      # Definición de las clases de datos
+├── requirements.txt                # Dependencias de Python
+├── simulated_annealing.py          # Lógica del algoritmo SA
+├── testACO.py                      # Script de experimentación para ACO
+└── testSA.py                       # Script de experimentación para SA
+
+*(Nota: Los archivos `.csv` de resultados y las gráficas `.png` se generan automáticamente durante la ejecución y son ignorados por Git para mantener limpio el repositorio).*
+
+---
 
 ## Instalación
 
 ### 1. Clonar el repositorio
 
-```bash
 git clone https://github.com/AlfonsoMSDL/Metodos-de-busqueda-IA.git
-```
-
-Entrar al proyecto:
-
-```bash
 cd "Metodos de busqueda IA"
-```
 
-### 2. Crear el entorno virtual
+### 2. Crear y activar el entorno virtual
 
-Se recomienda utilizar un entorno virtual para evitar conflictos con las dependencias de Python instaladas en el sistema.
+Se recomienda utilizar un entorno virtual para evitar conflictos con las dependencias del sistema.
 
-```bash
+# Crear entorno
 python3 -m venv .venv
-```
 
-### 3. Activar el entorno virtual
-
-En Linux:
-
-```bash
+# Activar en Linux/macOS
 source .venv/bin/activate
-```
 
-En Windows:
-
-```bash
+# Activar en Windows
 .venv\Scripts\activate
-```
 
-Cuando el entorno esté activo, aparecerá `(.venv)` al inicio de la terminal.
+*(Cuando el entorno esté activo, aparecerá `(.venv)` al inicio de la terminal).*
 
-### 4. Instalar las dependencias
+### 3. Instalar las dependencias
 
-Con el entorno virtual activado:
-
-```bash
 python -m pip install -r requirements.txt
-```
 
-Las principales dependencias utilizadas son:
+Principales librerías utilizadas: `pandas`, `openpyxl`, `numpy`, `matplotlib`.
 
-- `pandas`
-- `openpyxl`
+---
 
-## Ejecución
+## Ejecución de Experimentos
 
-Con el entorno virtual activado, ejecutar:
+El proyecto está diseñado para correr experimentos por bloques (Línea Base, Bloque 1, Bloque 2). Para ejecutar las pruebas automatizadas de 30 corridas, asegúrate de tener el entorno virtual activado y los archivos `.xlsx` dentro de la carpeta `data/`.
 
-```bash
-python main.py
-```
+**Para correr Enfriamiento Simulado:**
+python testSA.py
 
-También se puede ejecutar directamente utilizando el Python del entorno virtual:
+**Para correr Optimización por Colonia de Hormigas:**
+python testACO.py
 
-```bash
-./.venv/bin/python main.py
-```
+**Para analizar los resultados y rankear las mejores configuraciones:**
+python analizar_bloque1.py
 
-## Datos
-
-Los archivos utilizados por el programa deben encontrarse dentro de la carpeta:
-
-```text
-data/
-```
-
-El programa utiliza archivos de Excel como fuente de datos (ej. `instancia_examenes_tema02.xlsx`).
-Asegúrate de que los archivos necesarios se encuentren en la ubicación esperada antes de ejecutar el programa.
-
-## Desactivar el entorno virtual
-
-Cuando termines de trabajar en el proyecto:
-
-```bash
-deactivate
-```
-
-## Desarrollo
+## Desarrollo y Control de Versiones
 
 Cada vez que vuelvas a trabajar en el proyecto:
-
-```bash
 cd "Metodos de busqueda IA"
 source .venv/bin/activate
-python main.py
-```
 
-## Dependencias
+Al terminar de trabajar, desactiva el entorno:
+deactivate
 
-Si se instala una nueva librería durante el desarrollo, actualizar el archivo `requirements.txt` con:
-
-```bash
+Si instalas nuevas dependencias durante el desarrollo, actualiza el archivo de requerimientos:
 pip freeze > requirements.txt
-```
-
-Esto permite que otros desarrolladores puedan instalar las mismas dependencias utilizando:
-
-```bash
-pip install -r requirements.txt
-```
-
-## Control de versiones
-
-El entorno virtual `.venv/`, los archivos `__pycache__/` y otros archivos temporales no deben subirse al repositorio. Estos archivos están excluidos mediante `.gitignore`.
