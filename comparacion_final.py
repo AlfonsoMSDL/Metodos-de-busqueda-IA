@@ -3,23 +3,63 @@ import matplotlib.pyplot as plt
 import os
 
 def generar_boxplots(df, algoritmo, id_base, id_b1, id_b2):
-    """Genera y guarda el diagrama de caja comparativo para un algoritmo."""
-    datos_filtrados = df[df['ID_Config'].isin([id_base, id_b1, id_b2])]
+    """Genera y guarda el diagrama de caja comparativo en formato clásico y limpio."""
+    datos_filtrados = df[df['ID_Config'].isin([id_base, id_b1, id_b2])].copy()
     datos_filtrados['ID_Config'] = pd.Categorical(
         datos_filtrados['ID_Config'], 
         categories=[id_base, id_b1, id_b2], 
         ordered=True
     )
     
-    plt.figure(figsize=(10, 6))
-    datos_filtrados.boxplot(column='Costo_Total', by='ID_Config', grid=True, patch_artist=True)
-    plt.title(f'Comparación de Costos - {algoritmo}')
-    plt.suptitle('') 
-    plt.xlabel('Configuración')
-    plt.ylabel('Costo de la Función Objetivo')
+    # Extraer los datos agrupados por categoría para asegurar el orden correcto
+    datos_por_categoria = [
+        datos_filtrados[datos_filtrados['ID_Config'] == cat]['Costo_Total'].dropna()
+        for cat in [id_base, id_b1, id_b2]
+    ]
     
+    plt.figure(figsize=(9, 6))
+    
+    # Crear el boxplot (quitamos 'labels' de aquí)
+    bp = plt.boxplot(
+        datos_por_categoria,
+        patch_artist=True,
+        widths=0.4
+    )
+    
+    # Asignar las etiquetas de forma manual y segura con xticks
+    plt.xticks(ticks=[1, 2, 3], labels=[str(id_base), str(id_b1), str(id_b2)])
+    
+    # 1. Relleno blanco y bordes negros para las cajas
+    for box in bp['boxes']:
+        box.set(facecolor='white', edgecolor='black', linewidth=1)
+        
+    # 2. Líneas de la mediana en color naranja
+    for median in bp['medians']:
+        median.set(color='#FF9933', linewidth=1.5)
+        
+    # 3. Bigotes y tapas (caps) en negro
+    for whisker in bp['whiskers']:
+        whisker.set(color='black', linewidth=1)
+    for cap in bp['caps']:
+        cap.set(color='black', linewidth=1)
+        
+    # 4. Outliers como círculos vacíos (puntos)
+    for flier in bp['fliers']:
+        flier.set(marker='o', color='black', markersize=5, 
+                  markerfacecolor='white', markeredgecolor='black')
+
+    # 5. Configurar la cuadrícula horizontal de fondo
+    plt.grid(axis='y', linestyle='-', linewidth=0.7, color='#CCCCCC')
+    plt.gca().set_axisbelow(True) # Envía las líneas de la cuadrícula detrás de las cajas
+    
+    # Etiquetas y título
+    plt.title(f'Comparación de Costos - {algoritmo}', fontsize=12, pad=15)
+    plt.xlabel('Configuración', fontsize=10)
+    plt.ylabel('Costo de la Función Objetivo', fontsize=10)
+    
+    # Guardar imagen con alta calidad
     nombre_archivo = f'boxplot_comparativo_{algoritmo}.png'
-    plt.savefig(nombre_archivo, dpi=300)
+    plt.savefig(nombre_archivo, dpi=300, bbox_inches='tight')
     plt.close('all')
     print(f"* Diagrama de caja guardado: {nombre_archivo}")
 
