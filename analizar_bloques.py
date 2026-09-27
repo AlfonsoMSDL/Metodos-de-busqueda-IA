@@ -36,7 +36,7 @@ def analizar_y_rankear(archivo_csv, nombre_algoritmo):
 
     # Imprimir la tabla de resultados de forma legible
     print(f"\n{'='*90}")
-    print(f" RANKING DE CONFIGURACIONES - {nombre_algoritmo.upper()} (Bloque 1)")
+    print(f" RANKING DE CONFIGURACIONES - {nombre_algoritmo.upper()}")
     print(f"{'='*90}")
     
     # Formatear columnas para la visualización en consola
