@@ -67,22 +67,26 @@ METODOS DE BUSQUEDA IA/
 
 ### 1. Clonar el repositorio
 
+```
 git clone https://github.com/AlfonsoMSDL/Metodos-de-busqueda-IA.git
 cd "Metodos de busqueda IA"
-
+```
 ### 2. Crear y activar el entorno virtual
 
 Se recomienda utilizar un entorno virtual para evitar conflictos con las dependencias del sistema.
 
 # Crear entorno
+```
 python3 -m venv .venv
-
+```
 # Activar en Linux/macOS
+```
 source .venv/bin/activate
-
+```
 # Activar en Windows
+```
 .venv\Scripts\activate
-
+```
 *(Cuando el entorno esté activo, aparecerá `(.venv)` al inicio de la terminal).*
 
 ### 3. Instalar las dependencias
