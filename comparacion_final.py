@@ -38,7 +38,9 @@ def generar_tabla_comparativa(df_sa, df_aco, campeon_sa, campeon_aco):
     tasa_fact_sa = (datos_sa['Factible'] == 'SI').mean() * 100
     costo_prom_sa = datos_sa['Costo_Total'].mean()
     mejor_costo_sa = datos_sa['Costo_Total'].min()
-    cv_sa = datos_sa['Costo_Total'].std() / costo_prom_sa
+    peor_costo_sa = datos_sa['Costo_Total'].max()          # NUEVO
+    std_sa = datos_sa['Costo_Total'].std()                 # NUEVO
+    cv_sa = std_sa / costo_prom_sa if costo_prom_sa != 0 else 0
     tiempo_sa = datos_sa['Tiempo_s'].mean()
     iter_sa = datos_sa['Iteracion_Mejor'].mean()
     
@@ -46,23 +48,28 @@ def generar_tabla_comparativa(df_sa, df_aco, campeon_sa, campeon_aco):
     tasa_fact_aco = (datos_aco['Factible'] == 'SI').mean() * 100
     costo_prom_aco = datos_aco['Costo_Total'].mean()
     mejor_costo_aco = datos_aco['Costo_Total'].min()
-    cv_aco = datos_aco['Costo_Total'].std() / costo_prom_aco
+    peor_costo_aco = datos_aco['Costo_Total'].max()          # NUEVO
+    std_aco = datos_aco['Costo_Total'].std()                 # NUEVO
+    cv_aco = std_aco / costo_prom_aco if costo_prom_aco != 0 else 0
     tiempo_aco = datos_aco['Tiempo_s'].mean()
     iter_aco = datos_aco['Iteracion_Mejor'].mean()
     
-    print(f"\n{'='*90}")
+    # Imprimir tabla ajustada
+    print(f"\n{'='*95}")
     print(f" TABLA FINAL COMPARATIVA: SA vs ACO (Corridas de Validación)")
-    print(f"{'='*90}")
-    print(f"{'Métrica':<30} | {'Simulated Annealing':<25} | {'Ant Colony Optimization':<25}")
-    print(f"{'-'*30}-+-{'-'*25}-+-{'-'*25}")
-    print(f"{'Mejor Configuración':<30} | {campeon_sa:<25} | {campeon_aco:<25}")
-    print(f"{'Tasa de Factibilidad':<30} | {tasa_fact_sa:>24.1f}% | {tasa_fact_aco:>24.1f}%")
-    print(f"{'Costo Promedio':<30} | {costo_prom_sa:>25.0f} | {costo_prom_aco:>25.0f}")
-    print(f"{'Mejor Costo Encontrado':<30} | {mejor_costo_sa:>25.0f} | {mejor_costo_aco:>25.0f}")
-    print(f"{'Coeficiente de Variación':<30} | {cv_sa:>25.4f} | {cv_aco:>25.4f}")
-    print(f"{'Tiempo Promedio (s)':<30} | {tiempo_sa:>25.2f} | {tiempo_aco:>25.2f}")
-    print(f"{'Iteración de Convergencia':<30} | {iter_sa:>25.0f} | {iter_aco:>25.0f}")
-    print(f"{'='*90}\n")
+    print(f"{'='*95}")
+    print(f"{'Métrica':<30} | {'Simulated Annealing':<28} | {'Ant Colony Optimization':<28}")
+    print(f"{'-'*30}-+-{'-'*28}-+-{'-'*28}")
+    print(f"{'Mejor Configuración':<30} | {campeon_sa:<28} | {campeon_aco:<28}")
+    print(f"{'Tasa de Factibilidad':<30} | {tasa_fact_sa:>27.1f}% | {tasa_fact_aco:>27.1f}%")
+    print(f"{'Costo Promedio':<30} | {costo_prom_sa:>28.0f} | {costo_prom_aco:>28.0f}")
+    print(f"{'Mejor Costo Encontrado':<30} | {mejor_costo_sa:>28.0f} | {mejor_costo_aco:>28.0f}")
+    print(f"{'Peor Costo Encontrado':<30} | {peor_costo_sa:>28.0f} | {peor_costo_aco:>28.0f}")
+    print(f"{'Desviación Estándar':<30} | {std_sa:>28.2f} | {std_aco:>28.2f}")
+    print(f"{'Coeficiente de Variación':<30} | {cv_sa:>28.4f} | {cv_aco:>28.4f}")
+    print(f"{'Tiempo Promedio (s)':<30} | {tiempo_sa:>28.2f} | {tiempo_aco:>28.2f}")
+    print(f"{'Iteración de Convergencia':<30} | {iter_sa:>28.0f} | {iter_aco:>28.0f}")
+    print(f"{'='*95}\n")
 
 def main():
     print("Cargando y unificando archivos CSV...")
@@ -77,12 +84,12 @@ def main():
     df_aco_b2 = pd.read_csv('resultados_ACO_experimentos_bloque2.csv')
     df_aco = pd.concat([df_aco_b1, df_aco_b2], ignore_index=True)
     
-    # --- CAMBIA ESTOS VALORES POR TUS GANADORES REALES ---
+    # Ganadores definitivos de Alfonso
     MEJOR_B1_SA = 'B1_SA_02'
-    MEJOR_B2_SA = 'B2_SA_09' # Actualizar cuando termine el script de SA
+    MEJOR_B2_SA = 'B2_SA_09' 
     
     MEJOR_B1_ACO = 'B1_ACO_07'
-    MEJOR_B2_ACO = 'B2_ACO_08' # Actualizar con el ganador de tu bloque 2
+    MEJOR_B2_ACO = 'B2_ACO_08' 
     
     print("\nGenerando Diagramas de Caja...")
     generar_boxplots(df_sa, "Simulated_Annealing", "Linea_Base", MEJOR_B1_SA, MEJOR_B2_SA)
