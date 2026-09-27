@@ -79,10 +79,10 @@ def main():
     
     # --- CAMBIA ESTOS VALORES POR TUS GANADORES REALES ---
     MEJOR_B1_SA = 'B1_SA_02'
-    MEJOR_B2_SA = 'B2_SA_03' # Actualizar cuando termine el script de SA
+    MEJOR_B2_SA = 'B2_SA_09' # Actualizar cuando termine el script de SA
     
     MEJOR_B1_ACO = 'B1_ACO_07'
-    MEJOR_B2_ACO = 'B2_ACO_02' # Actualizar con el ganador de tu bloque 2
+    MEJOR_B2_ACO = 'B2_ACO_08' # Actualizar con el ganador de tu bloque 2
     
     print("\nGenerando Diagramas de Caja...")
     generar_boxplots(df_sa, "Simulated_Annealing", "Linea_Base", MEJOR_B1_SA, MEJOR_B2_SA)
