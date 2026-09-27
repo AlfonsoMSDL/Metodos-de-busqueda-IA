@@ -11,14 +11,13 @@ def analizar_y_rankear(archivo_csv, nombre_algoritmo):
     # Convertir la columna 'Factible' a valores numéricos para sacar el porcentaje
     df['Es_Factible'] = df['Factible'].apply(lambda x: 1 if x == 'SI' else 0)
 
-    # 1. EVALUACIÓN Y ESTADÍSTICAS ESPECÍFICAS DE LA LÍNEA BASE
-    # Buscamos variaciones comunes del nombre de la línea base ('Linea_Base', 'linea_base', etc.)
+    # 1. EVALUACIÓN Y ESTADÍSTICAS ESPECÍFICAS DE LA LÍNEA BASE (Sin tasa de factibilidad)
     df_linea_base = df[df['ID_Config'].str.lower().isin(['linea_base', 'lineabase', 'base'])]
     
     if not df_linea_base.empty:
-        print(f"\n{'='*90}")
+        print(f"\n{'='*100}")
         print(f" ESTADÍSTICAS DETALLADAS DE LA LÍNEA BASE - {nombre_algoritmo.upper()}")
-        print(f"{'='*90}")
+        print(f"{'='*100}")
         
         lb_resumen = df_linea_base.groupby('ID_Config').agg(
             Costo_Promedio=('Costo_Total', 'mean'),
@@ -26,21 +25,27 @@ def analizar_y_rankear(archivo_csv, nombre_algoritmo):
             Max_Costo=('Costo_Total', 'max'),
             Desviacion_Std=('Costo_Total', 'std'),
             Iteracion_Convergencia=('Iteracion_Mejor', 'mean'),
-            Tasa_Factibilidad=('Es_Factible', lambda x: x.mean() * 100),
             Tiempo_Promedio=('Tiempo_s', 'mean')
         ).reset_index()
         
-        lb_columnas = ['ID_Config', 'Min_Costo', 'Max_Costo', 'Desviacion_Std', 'Iteracion_Convergencia', 'Tasa_Factibilidad', 'Costo_Promedio']
+        # Calcular el Coeficiente de Variación (CV) para la Línea Base
+        lb_resumen['Coef_Variacion'] = lb_resumen['Desviacion_Std'] / lb_resumen['Costo_Promedio']
+        
+        lb_columnas = [
+            'ID_Config', 'Costo_Promedio', 'Min_Costo', 'Max_Costo', 
+            'Desviacion_Std', 'Coef_Variacion', 'Iteracion_Convergencia', 'Tiempo_Promedio'
+        ]
         lb_formato = {
+            'Costo_Promedio': lambda x: f"{x:.0f}",
             'Min_Costo': lambda x: f"{x:.0f}",
             'Max_Costo': lambda x: f"{x:.0f}",
             'Desviacion_Std': lambda x: f"{x:.4f}",
+            'Coef_Variacion': lambda x: f"{x:.4f}",
             'Iteracion_Convergencia': lambda x: f"{x:.1f}",
-            'Tasa_Factibilidad': lambda x: f"{x:.1f}%",
-            'Costo_Promedio': lambda x: f"{x:.0f}"
+            'Tiempo_Promedio': lambda x: f"{x:.2f}s"
         }
         print(lb_resumen[lb_columnas].to_string(index=False, formatters=lb_formato))
-        print(f"{'='*90}\n")
+        print(f"{'='*100}\n")
 
     # 2. EVALUACIÓN Y RANKING EXCLUSIVO DEL BLOQUE 1 (Excluyendo la línea base)
     df_bloque1 = df[~df['ID_Config'].str.lower().isin(['linea_base', 'lineabase', 'base'])]
@@ -68,9 +73,9 @@ def analizar_y_rankear(archivo_csv, nombre_algoritmo):
         ascending=[False, True, True]
     )
 
-    print(f"{'='*90}")
-    print(f" RANKING DE CONFIGURACIONES - {nombre_algoritmo.upper()} (Únicamente Bloque 1)")
-    print(f"{'='*90}")
+    print(f"{'='*110}")
+    print(f" RANKING DE CONFIGURACIONES - {nombre_algoritmo.upper()} (Bloque 1)")
+    print(f"{'='*110}")
     
     columnas_mostrar = ['ID_Config', 'Tasa_Factibilidad', 'Costo_Promedio', 'Mejor_Costo', 'Coef_Variacion', 'Tiempo_Promedio']
     formato = {
@@ -81,7 +86,7 @@ def analizar_y_rankear(archivo_csv, nombre_algoritmo):
     }
     
     print(resumen_b1[columnas_mostrar].to_string(index=False, formatters=formato))
-    print(f"{'='*90}\n")
+    print(f"{'='*110}\n")
 
 if __name__ == "__main__":
     analizar_y_rankear('resultados_SA_experimentos.csv', 'Simulated Annealing')
