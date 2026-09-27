@@ -52,5 +52,11 @@ def analizar_y_rankear(archivo_csv, nombre_algoritmo):
     print(f"{'='*90}\n")
 
 if __name__ == "__main__":
-    analizar_y_rankear('resultados_SA_experimentos.csv', 'Simulated Annealing')
-    analizar_y_rankear('resultados_ACO_experimentos.csv', 'Ant Colony Optimization')
+
+    #Analizamos los mejores resultados del Bloque 1
+    #analizar_y_rankear('resultados_SA_experimentos.csv', 'Simulated Annealing')
+    #analizar_y_rankear('resultados_ACO_experimentos.csv', 'Ant Colony Optimization')
+
+    #Analizamos los mejores resultados del Bloque 2
+    #analizar_y_rankear('resultados_SA_experimentos_bloque2.csv', 'Simulated Annealing (Bloque 2)')
+    analizar_y_rankear('resultados_ACO_experimentos_bloque2.csv', 'Ant Colony Optimization (Bloque 2)')
