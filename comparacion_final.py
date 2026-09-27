@@ -4,10 +4,7 @@ import os
 
 def generar_boxplots(df, algoritmo, id_base, id_b1, id_b2):
     """Genera y guarda el diagrama de caja comparativo para un algoritmo."""
-    # Filtrar solo las configuraciones que nos interesan
     datos_filtrados = df[df['ID_Config'].isin([id_base, id_b1, id_b2])]
-    
-    # Ordenar categóricamente para que el gráfico salga en el orden correcto
     datos_filtrados['ID_Config'] = pd.Categorical(
         datos_filtrados['ID_Config'], 
         categories=[id_base, id_b1, id_b2], 
@@ -16,9 +13,8 @@ def generar_boxplots(df, algoritmo, id_base, id_b1, id_b2):
     
     plt.figure(figsize=(10, 6))
     datos_filtrados.boxplot(column='Costo_Total', by='ID_Config', grid=True, patch_artist=True)
-    
     plt.title(f'Comparación de Costos - {algoritmo}')
-    plt.suptitle('')  # Eliminar el título automático de pandas
+    plt.suptitle('') 
     plt.xlabel('Configuración')
     plt.ylabel('Costo de la Función Objetivo')
     
@@ -27,34 +23,73 @@ def generar_boxplots(df, algoritmo, id_base, id_b1, id_b2):
     plt.close('all')
     print(f"* Diagrama de caja guardado: {nombre_archivo}")
 
-def generar_tabla_comparativa(df_sa, df_aco, campeon_sa, campeon_aco):
-    """Genera la tabla final comparando SA vs ACO usando los campeones del Bloque 2."""
-    
-    # Extraer los datos solo de los campeones
+def generar_graficos_barras(df_sa, df_aco, campeon_sa, campeon_aco):
+    """Genera los 3 gráficos de barras comparativos de la validación final."""
+    # Extraer datos de los campeones
     datos_sa = df_sa[df_sa['ID_Config'] == campeon_sa]
     datos_aco = df_aco[df_aco['ID_Config'] == campeon_aco]
     
-    # Calcular métricas para SA
+    # Calcular las 3 métricas clave
+    cv_sa = (datos_sa['Costo_Total'].std() / datos_sa['Costo_Total'].mean()) * 100
+    cv_aco = (datos_aco['Costo_Total'].std() / datos_aco['Costo_Total'].mean()) * 100
+    
+    tiempo_sa = datos_sa['Tiempo_s'].mean()
+    tiempo_aco = datos_aco['Tiempo_s'].mean()
+    
+    iter_sa = datos_sa['Iteracion_Mejor'].mean()
+    iter_aco = datos_aco['Iteracion_Mejor'].mean()
+
+    # Crear la figura con 3 subgráficos (1 fila, 3 columnas)
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    algoritmos = ['SA', 'ACO']
+    
+    # Gráfico 1: CV (%)
+    axes[0].bar(algoritmos, [cv_sa, cv_aco], color=['#1f77b4', '#ff7f0e'])
+    axes[0].set_title('Variabilidad relativa (Estabilidad)')
+    axes[0].set_ylabel('Coeficiente de Variación (%)')
+    axes[0].grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Gráfico 2: Tiempo de ejecución
+    axes[1].bar(algoritmos, [tiempo_sa, tiempo_aco], color=['#1f77b4', '#ff7f0e'])
+    axes[1].set_title('Costo Computacional')
+    axes[1].set_ylabel('Tiempo promedio por corrida (s)')
+    axes[1].grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Gráfico 3: Paso de convergencia
+    axes[2].bar(algoritmos, [iter_sa, iter_aco], color=['#1f77b4', '#ff7f0e'])
+    axes[2].set_title('Velocidad de Convergencia')
+    axes[2].set_ylabel('Iteración / Generación media')
+    axes[2].grid(axis='y', linestyle='--', alpha=0.7)
+
+    plt.tight_layout()
+    nombre_archivo = 'graficos_barras_validacion_final.png'
+    plt.savefig(nombre_archivo, dpi=300)
+    plt.close('all')
+    print(f"* Gráficos de barras guardados: {nombre_archivo}")
+
+def generar_tabla_comparativa(df_sa, df_aco, campeon_sa, campeon_aco):
+    """Genera la tabla final comparando SA vs ACO usando los campeones del Bloque 2."""
+    datos_sa = df_sa[df_sa['ID_Config'] == campeon_sa]
+    datos_aco = df_aco[df_aco['ID_Config'] == campeon_aco]
+    
     tasa_fact_sa = (datos_sa['Factible'] == 'SI').mean() * 100
     costo_prom_sa = datos_sa['Costo_Total'].mean()
     mejor_costo_sa = datos_sa['Costo_Total'].min()
-    peor_costo_sa = datos_sa['Costo_Total'].max()          # NUEVO
-    std_sa = datos_sa['Costo_Total'].std()                 # NUEVO
+    peor_costo_sa = datos_sa['Costo_Total'].max()
+    std_sa = datos_sa['Costo_Total'].std()
     cv_sa = std_sa / costo_prom_sa if costo_prom_sa != 0 else 0
     tiempo_sa = datos_sa['Tiempo_s'].mean()
     iter_sa = datos_sa['Iteracion_Mejor'].mean()
     
-    # Calcular métricas para ACO
     tasa_fact_aco = (datos_aco['Factible'] == 'SI').mean() * 100
     costo_prom_aco = datos_aco['Costo_Total'].mean()
     mejor_costo_aco = datos_aco['Costo_Total'].min()
-    peor_costo_aco = datos_aco['Costo_Total'].max()          # NUEVO
-    std_aco = datos_aco['Costo_Total'].std()                 # NUEVO
+    peor_costo_aco = datos_aco['Costo_Total'].max()
+    std_aco = datos_aco['Costo_Total'].std()
     cv_aco = std_aco / costo_prom_aco if costo_prom_aco != 0 else 0
     tiempo_aco = datos_aco['Tiempo_s'].mean()
     iter_aco = datos_aco['Iteracion_Mejor'].mean()
     
-    # Imprimir tabla ajustada
     print(f"\n{'='*95}")
     print(f" TABLA FINAL COMPARATIVA: SA vs ACO (Corridas de Validación)")
     print(f"{'='*95}")
@@ -74,26 +109,25 @@ def generar_tabla_comparativa(df_sa, df_aco, campeon_sa, campeon_aco):
 def main():
     print("Cargando y unificando archivos CSV...")
     
-    # Cargar y unir los archivos de SA
     df_sa_b1 = pd.read_csv('resultados_SA_experimentos.csv')
     df_sa_b2 = pd.read_csv('resultados_SA_experimentos_bloque2.csv')
     df_sa = pd.concat([df_sa_b1, df_sa_b2], ignore_index=True)
     
-    # Cargar y unir los archivos de ACO
     df_aco_b1 = pd.read_csv('resultados_ACO_experimentos.csv')
     df_aco_b2 = pd.read_csv('resultados_ACO_experimentos_bloque2.csv')
     df_aco = pd.concat([df_aco_b1, df_aco_b2], ignore_index=True)
     
-    # Ganadores definitivos de Alfonso
     MEJOR_B1_SA = 'B1_SA_02'
     MEJOR_B2_SA = 'B2_SA_09' 
-    
     MEJOR_B1_ACO = 'B1_ACO_07'
     MEJOR_B2_ACO = 'B2_ACO_08' 
     
     print("\nGenerando Diagramas de Caja...")
     generar_boxplots(df_sa, "Simulated_Annealing", "Linea_Base", MEJOR_B1_SA, MEJOR_B2_SA)
     generar_boxplots(df_aco, "Ant_Colony", "Linea_Base", MEJOR_B1_ACO, MEJOR_B2_ACO)
+    
+    print("\nGenerando Gráficos de Barras (Diapositiva 11)...")
+    generar_graficos_barras(df_sa, df_aco, MEJOR_B2_SA, MEJOR_B2_ACO)
     
     print("\nGenerando Tabla Comparativa Final...")
     generar_tabla_comparativa(df_sa, df_aco, MEJOR_B2_SA, MEJOR_B2_ACO)
