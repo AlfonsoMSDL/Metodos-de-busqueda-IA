@@ -1,123 +1,117 @@
-# Métodos de Búsqueda IA: Programación de Exámenes Universitarios
+# Optimización de Horarios de Exámenes Universitarios (SA vs ACO)
 
-Proyecto desarrollado en Python para la implementación y experimentación de métodos de búsqueda metaheurísticos (Enfriamiento Simulado - SA y Optimización por Colonias de Hormigas - ACO) aplicados a un problema de optimización combinatoria.
+Este proyecto aplica técnicas de Inteligencia Artificial para automatizar y optimizar la asignación de franjas horarias y aulas para exámenes universitarios. Se realiza una comparación exhaustiva entre dos algoritmos metaheurísticos: **Simulated Annealing (SA)** y **Ant Colony Optimization (ACO)**.
 
-## Contexto del Proyecto
+## 📌 El Problema Logístico
 
-El objetivo de este proyecto es resolver el problema de **Programación de Exámenes Universitarios**. El sistema debe asignar a cada examen una franja horaria y un aula, minimizando los conflictos y maximizando la eficiencia de los recursos. 
+Cada fin de semestre, las universidades se enfrentan al reto de programar cientos de exámenes. Hacerlo manualmente o sin optimización genera ineficiencias y problemas para los estudiantes. Este proyecto modela este desafío a través de una **Función Objetivo** que evalúa dos tipos de restricciones:
 
-El problema se evalúa mediante una función objetivo que penaliza:
-1. **Restricciones Duras ($H$):** Cruces de horarios para estudiantes, superación de aforos de aulas, o asignaciones en horarios no permitidos (deben ser 0 para que la solución sea factible).
-2. **Restricciones Blandas:** Estudiantes con más de un examen el mismo día ($C_{dia}$) y asientos vacíos en las aulas utilizadas ($P_{libres}$).
+* **Restricciones Duras (Inviolables):**
+  1. Ningún estudiante puede tener dos exámenes a la misma hora (Cruces).
+  2. La cantidad de estudiantes no puede superar la capacidad del aula asignada (Aforo).
+  *Nota: Si se viola alguna de estas restricciones, el horario es inválido (Factibilidad = 0).*
 
----
+* **Restricciones Blandas (Calidad del Horario):**
+  1. Minimizar la cantidad de estudiantes con múltiples exámenes el mismo día.
+  2. Minimizar el desperdicio de espacio físico (sillas vacías).
 
-## Arquitectura y Componentes Clave
+## 🚀 La Solución
 
-El proyecto está modularizado en tres capas principales:
+Para resolver este problema de optimización combinatoria, implementamos dos enfoques:
 
-### 1. Modelos de Datos (`modelos.py` y `lector_excel.py`)
-Mapeo orientado a objetos de los datos de entrada:
-*   **`Examen`**: Identificador, cantidad de estudiantes, duración y franjas permitidas.
-*   **`Franja`**: Identificador único, día de la semana y horario.
-*   **`Aula`**: Identificador, capacidad máxima y franjas disponibles.
-*   **`Matricula`**: Relación estudiante-examen para calcular conflictos.
+1. **Simulated Annealing (SA):** Un algoritmo de búsqueda local inspirado en el enfriamiento de metales, que modifica un horario inicial iterativamente, aceptando peores soluciones temporalmente para escapar de óptimos locales.
+2. **Ant Colony Optimization (ACO):** Un algoritmo constructivo inspirado en el comportamiento de las hormigas, donde múltiples agentes construyen horarios paso a paso guiados por una memoria colectiva (feromonas) y heurísticas locales.
 
-### 2. Función Objetivo (`funcion_objetivo.py`)
-La clase `EvaluadorFO` se encarga de calcular el costo estandarizado de cualquier horario generado, validando la matriz de conflictos y penalizando las violaciones duras y blandas según la fórmula: 
-$Costo = 100000 \cdot H + 100 \cdot C_{dia} + P_{libres}$
+## 📂 Estructura del Proyecto
 
-### 3. Algoritmos y Experimentación
-*   **`simulated_annealing.py`**: Implementación del algoritmo de Enfriamiento Simulado.
-*   **`ant_colony_opt.py`**: Implementación de Optimización por Colonia de Hormigas (ACO).
-*   **Scripts de Prueba (`testSA.py`, `testACO.py`)**: Motores de ejecución automatizada que corren bloques experimentales de 30 corridas, exportando resultados a archivos `.csv` y generando gráficas de convergencia.
-*   **`analizar_bloque1.py`**: Script de procesamiento de datos con Pandas para clasificar las configuraciones campeonas basándose en factibilidad, costo y coeficiente de variación.
+* `data/`: Carpeta que contiene los archivos de entrada (e.g., base de datos en Excel).
+* `lector_excel.py`: Módulo encargado de extraer y procesar los datos de entrada.
+* `modelos.py`: Define las estructuras de datos (clases de Estudiantes, Exámenes, Aulas).
+* `funcion_objetivo.py`: Lógica matemática para calcular los costos y penalizaciones.
+* `simulated_annealing.py`: Implementación del algoritmo SA.
+* `ant_colony_opt.py`: Implementación del algoritmo ACO.
+* `testSA.py` / `testACO.py`: Scripts principales para ejecutar los experimentos masivos.
+* `analizar_bloques.py`: Script para procesar los resultados (CSV) y rankear las configuraciones.
+* `comparacion_final.py`: Script que toma a los campeones absolutos para generar los gráficos comparativos.
+* `requirements.txt`: Dependencias necesarias para ejecutar el proyecto.
 
----
+## 📋 Configuraciones Iniciales (Copiar y Pegar)
 
-## Requisitos
+Para iniciar los experimentos, inserta estos diccionarios en tus archivos `testSA.py` y `testACO.py`. 
+*Nota: Solo se proveen la Línea Base y el Bloque 1, ya que el Bloque 2 debe diseñarse a partir de los resultados obtenidos aquí.*
 
-- Python 3.12 o superior
-- Git
-- pip
+### Para `testSA.py`
+```python
+# --- LÍNEA BASE SA ---
+config_base_sa = [
+    {"id": "Linea_Base_SA", "T_inicial": 10000, "alfa": 0.95, "T_final": 1.0, "iteraciones": 100}
+]
 
-## Estructura del proyecto
-
-```text
-METODOS DE BUSQUEDA IA/
-├── data/                           # Archivos de datos de Excel (instancias)
-├── .gitignore                      # Exclusión de entornos virtuales y resultados
-├── README.md                       # Documentación del proyecto
-├── analizar_bloque1.py             # Script de análisis de resultados en consola
-├── ant_colony_opt.py               # Lógica del algoritmo ACO
-├── funcion_objetivo.py             # Clase EvaluadorFO para cálculo de costos
-├── lector_excel.py                 # Lectura con pandas y mapeo de datos
-├── modelos.py                      # Definición de las clases de datos
-├── requirements.txt                # Dependencias de Python
-├── simulated_annealing.py          # Lógica del algoritmo SA
-├── testACO.py                      # Script de experimentación para ACO
-└── testSA.py                       # Script de experimentación para SA
+# --- BLOQUE 1: Exploración SA ---
+configuraciones_b1_sa = [
+    {"id": "B1_SA_01", "T_inicial": 100000, "alfa": 0.90, "T_final": 0.1, "iteraciones": 200},
+    {"id": "B1_SA_02", "T_inicial": 5000000, "alfa": 0.995, "T_final": 0.1, "iteraciones": 600},
+    {"id": "B1_SA_05", "T_inicial": 2500000, "alfa": 0.98, "T_final": 0.1, "iteraciones": 400},
+    {"id": "B1_SA_09", "T_inicial": 1000000, "alfa": 0.99, "T_final": 0.1, "iteraciones": 300}
+    # Añade más configuraciones explorando rangos amplios de temperatura y enfriamiento.
+]
 ```
 
-*(Nota: Los archivos `.csv` de resultados y las gráficas `.png` se generan automáticamente durante la ejecución y son ignorados por Git para mantener limpio el repositorio).*
+### Para `testACO.py`
+```python
+# --- LÍNEA BASE ACO ---
+config_base_aco = [
+    {"id": "Linea_Base_ACO", "num_hormigas": 20, "num_generaciones": 50, "alpha": 1.0, "beta": 1.0, "rho": 0.5, "Q": 100.0}
+]
 
----
-
-## Instalación
-
-### 1. Clonar el repositorio
-
+# --- BLOQUE 1: Exploración ACO ---
+configuraciones_b1_aco = [
+    {"id": "B1_ACO_02", "num_hormigas": 40, "num_generaciones": 150, "alpha": 0.8, "beta": 1.2, "rho": 0.2, "Q": 5000.0},
+    {"id": "B1_ACO_03", "num_hormigas": 30, "num_generaciones": 100, "alpha": 1.0, "beta": 2.0, "rho": 0.1, "Q": 1000.0},
+    {"id": "B1_ACO_07", "num_hormigas": 50, "num_generaciones": 200, "alpha": 1.2, "beta": 1.5, "rho": 0.01, "Q": 50000.0}
+    # Añade más configuraciones variando la evaporación (rho) y el peso heurístico.
+]
 ```
-git clone https://github.com/AlfonsoMSDL/Metodos-de-busqueda-IA.git
-cd "Metodos de busqueda IA"
-```
-### 2. Crear y activar el entorno virtual
 
-Se recomienda utilizar un entorno virtual para evitar conflictos con las dependencias del sistema.
+## ⚙️ Guía de Ejecución Paso a Paso (Metodología)
 
-# Crear entorno
-```
-python3 -m venv .venv
-```
-# Activar en Linux/macOS
-```
-source .venv/bin/activate
-```
-# Activar en Windows
-```
-.venv\Scripts\activate
-```
-*(Cuando el entorno esté activo, aparecerá `(.venv)` al inicio de la terminal).*
+El diseño experimental requiere un flujo estricto donde los resultados de una fase dictan los parámetros de la siguiente. Sigue estos pasos sin saltarte el orden:
 
-### 3. Instalar las dependencias
+### Paso 0: Preparación
+Instala las dependencias necesarias ejecutando:
+`pip install -r requirements.txt`
 
-python -m pip install -r requirements.txt
+### Paso 1: Ejecución del Bloque 1 (Exploración)
+En esta fase, los algoritmos exploran un espacio de búsqueda muy amplio. Asegúrate de tener copiadas las configuraciones del Bloque 1 en tus scripts y ejecútalos (por defecto harán 30 corridas por semilla).
+`python testSA.py`
+`python testACO.py`
 
-Principales librerías utilizadas: `pandas`, `openpyxl`, `numpy`, `matplotlib`.
+### Paso 2: Análisis del Bloque 1 (Identificando al Ganador)
+Ejecuta el script de análisis para que el sistema lea los CSV generados y rankee los resultados basándose primero en la **Factibilidad** y luego en el **Costo Medio**.
+`python analizar_bloques.py`
+*Toma nota mental o escrita de la configuración que quedó en 1° lugar para SA y para ACO.*
 
----
+### Paso 3: Diseño del Bloque 2 (Ajuste Fino - ¡CRÍTICO!)
+**No uses valores aleatorios aquí.** Abre tus scripts `testSA.py` y `testACO.py` y crea las configuraciones para el Bloque 2 (`configuraciones_b2_...`). 
+La regla es: **Toma los hiperparámetros del ganador del Bloque 1 y crea variaciones minúsculas alrededor de él.**
+* *Ejemplo SA:* Si el ganador del Bloque 1 tenía `alfa: 0.995`, en tu Bloque 2 debes probar variaciones ajustadas como `0.993, 0.994, 0.996`.
+* *Ejemplo ACO:* Si el ganador del Bloque 1 tenía `num_hormigas: 50`, prueba en el Bloque 2 con `48, 52, 55`.
 
-## Ejecución de Experimentos
+### Paso 4: Ejecución y Análisis del Bloque 2
+Corre nuevamente los experimentos con tus nuevas configuraciones refinadas y vuelve a analizarlas para encontrar al Campeón Absoluto de cada método.
+`python testSA.py`
+`python testACO.py`
+`python analizar_bloques.py`
 
-El proyecto está diseñado para correr experimentos por bloques (Línea Base, Bloque 1, Bloque 2). Para ejecutar las pruebas automatizadas de 30 corridas, asegúrate de tener el entorno virtual activado y los archivos `.xlsx` dentro de la carpeta `data/`.
+### Paso 5: Comparación Final 
+Ahora que tienes al mejor representante posible de SA y de ACO, abre `comparacion_final.py`, ingresa los nombres de las configuraciones campeonas (ej. `B2_SA_09` y `B2_ACO_08`) y ejecuta el script.
+`python comparacion_final.py`
+Esto generará los gráficos comparativos (boxplot, diagramas de barras de tiempo y estabilidad) demostrando el rendimiento final de frente a frente.
 
-**Para correr Enfriamiento Simulado:**
-python testSA.py
+## 📊 Interpretación de los Resultados
 
-**Para correr Optimización por Colonia de Hormigas:**
-python testACO.py
-
-**Para analizar los resultados y rankear las mejores configuraciones:**
-python analizar_bloque1.py
-
-## Desarrollo y Control de Versiones
-
-Cada vez que vuelvas a trabajar en el proyecto:
-cd "Metodos de busqueda IA"
-source .venv/bin/activate
-
-Al terminar de trabajar, desactiva el entorno:
-deactivate
-
-Si instalas nuevas dependencias durante el desarrollo, actualiza el archivo de requerimientos:
-pip freeze > requirements.txt
+Al evaluar las salidas en consola o en las diapositivas, ten en cuenta estos 4 pilares:
+1. **Tasa de Factibilidad (%):** Es la métrica reina. Mide cuántas veces el algoritmo logró un horario utilizable (cero cruces).
+2. **Costo Promedio:** Criterio de desempate. Menor costo indica una mejor calidad de vida para los estudiantes (menos exámenes el mismo día).
+3. **Coeficiente de Variación (CV):** Mide la estabilidad y consistencia. Un CV cercano a 0 indica fiabilidad total.
+4. **Tiempo Promedio (s):** El costo computacional. Permite evaluar si un algoritmo es escalable o si sufre un "trade-off" (sacrificar calidad por velocidad).
